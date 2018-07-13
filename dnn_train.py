@@ -183,9 +183,9 @@ def train(net_d, net_c, net_l, is_cuda, nitr, is_d, is_c, is_l,
         loss.backward()
         optimizer.step()
 
-    if is_d: torch.save(net_d.state_dict(), 'model_d')
-    if is_c: torch.save(net_c.state_dict(), 'model_c')
-    if is_l: torch.save(net_l.state_dict(), 'model_l')
+    if is_d: torch.save(net_d.state_dict(), 'model_d.pt')
+    if is_c: torch.save(net_c.state_dict(), 'model_c.pt')
+    if is_l: torch.save(net_l.state_dict(), 'model_l.pt')
 
 
 def view_train(training_data, threshould_iou, ratio_margnin_iou):
@@ -304,16 +304,8 @@ def main():
     print(os.uname())
     list_path_dir = []
     if os.uname()[1] == "nubuntu":
-#        list_path_dir.append('/media/nobuyuki/D/projects/face/rect_manual')
-#        list_path_dir.append('/media/nobuyuki/D/projects/face/rect_cv')
         list_path_dir.append('/media/nobuyuki/D/projects/face/umet55')
-    elif os.uname()[1] == "nobuyuki-ThinkPad-T480":
-        list_path_dir.append('/media/nobuyuki/PortableHDD/umet55')
-    elif os.uname()[1] == "Nobuyukis-MacBook-Pro-2.local" or os.uname()[1] == "nobuyukis-mbp-2.ads.autodesk.com":
-        list_path_dir.append('/Volumes/PortableHDD/rect_manual')
-        list_path_dir.append('/Volumes/PortableHDD/rect_cv')
-        list_path_dir.append('/Volumes/PortableHDD/umet55')
-#        list_path_dir.append('/Volumes/PortableHDD/img_test')
+
 
     print("number of cvs file:",len(list_path_dir))
     if len(list_path_dir) == 0:

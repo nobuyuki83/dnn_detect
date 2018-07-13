@@ -442,27 +442,27 @@ def normalizeTrchTnsrImg(tnsrTImg):
 def load_detection_network(is_cuda, path_dir):
     ####
     net_d = NetDesc()
-    if os.path.isfile(path_dir + '/model_d'):
+    if os.path.isfile(path_dir + '/model_d.pt'):
         if is_cuda:
-            net_d.load_state_dict(torch.load(path_dir + '/model_d'))
+            net_d.load_state_dict(torch.load(path_dir + '/model_d.pt'))
         else:
-            net_d.load_state_dict(torch.load(path_dir + '/model_d', map_location='cpu'))
+            net_d.load_state_dict(torch.load(path_dir + '/model_d.pt', map_location='cpu'))
 
     ####
     net_c = NetClass()
-    if os.path.isfile(path_dir + '/model_c'):
+    if os.path.isfile(path_dir + '/model_c.pt'):
         if is_cuda:
-            net_c.load_state_dict(torch.load(path_dir + '/model_c'))
+            net_c.load_state_dict(torch.load(path_dir + '/model_c.pt'))
         else:
-            net_c.load_state_dict(torch.load(path_dir + '/model_c', map_location='cpu'))
+            net_c.load_state_dict(torch.load(path_dir + '/model_c.pt', map_location='cpu'))
 
     ####
     net_l = NetLoc()
-    if os.path.isfile(path_dir + '/model_l'):
+    if os.path.isfile(path_dir + '/model_l.pt'):
         if is_cuda:
-            net_l.load_state_dict(torch.load(path_dir + '/model_l'))
+            net_l.load_state_dict(torch.load(path_dir + '/model_l.pt'))
         else:
-            net_l.load_state_dict(torch.load(path_dir + '/model_l', map_location='cpu'))
+            net_l.load_state_dict(torch.load(path_dir + '/model_l.pt', map_location='cpu'))
 
     if is_cuda:
         net_d = net_d.cuda()
