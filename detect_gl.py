@@ -138,7 +138,7 @@ def draw_img_annotation(img_size_info, dict_info):
             drawListRect(list_rect,color=(0,1,0),width=3)
 
     p_rect_tl = None
-    list_rect = face.get_list_rect_from_dict_info(dict_info)
+    list_rect = detect.get_list_rect_from_dict_info(dict_info)
     if len(list_rect) > 0:
         p_rect_tl = [list_rect[0][0],list_rect[0][1]]
 

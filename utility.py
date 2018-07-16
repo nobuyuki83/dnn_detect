@@ -41,7 +41,7 @@ def conv1():
                 "face_rect," + str(rect[0]) + "," + str(rect[1]) + "," + str(rect[2]) + "," + str(rect[3]) + "\n")
 
         img = cv2.imread(path)
-        face.highlight_rect(img, rect, (0, 255, 255), 2)
+        detect.highlight_rect(img, rect, (0, 255, 255), 2)
 
         size = (300, int(float(img.shape[0]) / img.shape[1] * 300.0))
         img2 = cv2.resize(img, size, interpolation=cv2.INTER_CUBIC);
@@ -76,10 +76,10 @@ def conv3():
     key_new = "rect_face_manual"
     for path_csv in glob.glob("/Volumes/PortableHDD/face/rect_manual/*.csv"):
         #        print(path_csv)
-        dict_data = face.get_csv_data(path_csv)
-        face.swap_keyword(key_old, key_new, dict_data)
+        dict_data = detect.get_csv_data(path_csv)
+        detect.swap_keyword(key_old, key_new, dict_data)
         print(dict_data)
-        face.save_csv_data(path_csv, dict_data)
+        detect.save_csv_data(path_csv, dict_data)
 
 
 # remove "*_rect.png"
@@ -121,7 +121,7 @@ def conv6():
             ext_img = ".jpg"
         path_img = path_dir_img + "/" + bnwe + ext_img
         assert os.path.isfile(path_img)
-        bnwe_md5 = face.getMD5(path_img)
+        bnwe_md5 = detect.getMD5(path_img)
         ch = bnwe_md5[0]
         print(path_img)
         os.rename(path_img, path_dir_root + "/" + ch + "/" + bnwe_md5 + ext_img)
@@ -138,7 +138,7 @@ def conv7():
             os.mkdir(path_dir_root + "/" + ch)
 
     for path_csv in glob.glob(path_dir_root + "/**/*.csv", recursive=True):
-        dict_data = face.get_csv_data(path_csv)
+        dict_data = detect.get_csv_data(path_csv)
         bn = os.path.basename(path_csv)
         bnwe = bn.rsplit(".", 1)[0]
         path_dir_img = os.path.dirname(path_csv)
@@ -146,17 +146,17 @@ def conv7():
         if not os.path.isfile(path_dir_img + "/" + bnwe + ext_img):
             ext_img = ".jpg"
         dict_data["url_name"] = bnwe + ext_img
-        face.save_csv_data(path_csv, dict_data)
+        detect.save_csv_data(path_csv, dict_data)
         path_img = path_dir_img + "/" + bnwe + ext_img
         assert os.path.isfile(path_img)
-        bnwe_md5 = face.getMD5(path_img)
+        bnwe_md5 = detect.getMD5(path_img)
         print(bn, bnwe_md5)
 
 # remove duplicated image. If a image is in X remove it from Z
 def conv8():
     path_dir_root = "/Volumes/PortableHDD/face/rect_cv"
     for path_csv in glob.glob(path_dir_root + "/**/*.csv", recursive=True):
-        dict_data = face.get_csv_data(path_csv)
+        dict_data = detect.get_csv_data(path_csv)
         if not "url_name" in dict_data:
             continue
         url_name = dict_data["url_name"]
@@ -182,11 +182,11 @@ def conv8():
 
 # look at Z folder, update the face rects
 def conv9():
-    detect_cv = face.FaceDetectorCV()
-    detect_dnn = face.FaceDetectorDNN(".")
+    detect_cv = detect.FaceDetectorCV()
+    detect_dnn = detect.FaceDetectorDNN(".")
     path_dir_root = "/home/nobuyuki/project/face/rect_manual"
     for path_csv in glob.glob(path_dir_root + "/**/*.csv", recursive=True):
-        dict_data = face.get_csv_data(path_csv)
+        dict_data = detect.get_csv_data(path_csv)
         bnwe_md5 = os.path.basename(path_csv).split(".", 1)[0]
         path_dir = path_csv.rsplit("/", 1)[0]
         ext = ".png"
@@ -206,12 +206,12 @@ def conv9():
         if rect_dnn is not None:
             dict_data["rect_face_dnn"] = str(rect_dnn[0]) + "," + str(rect_dnn[1]) + "," + str(rect_dnn[2]) + "," + str(
                 rect_dnn[3])
-        face.save_csv_data(path_csv,dict_data)
+        detect.save_csv_data(path_csv,dict_data)
 
 # look at y folder, if it has multiple face move it to Z folder
 def conv10():
-    detect_cv = face.FaceDetectorCV()
-    detect_dnn = face.FaceDetectorDNN('.')
+    detect_cv = detect.FaceDetectorCV()
+    detect_dnn = detect.FaceDetectorDNN('.')
     #path_dir_root = "/home/nobuyuki/project/face/umet55"
     #path_dir_root = "/media/nobuyuki/PortableHDD/umet55"
     path_dir_root = "/Volumes/PortableHDD/umet55"
@@ -242,7 +242,7 @@ def conv10():
             rect_dnn = ary_rect_dnn[0]
             dict_data["rect_face_dnn"] = str(rect_dnn[0])+","+str(rect_dnn[1])+","+str(rect_dnn[2])+","+str(rect_dnn[3])
         dict_data["shape_img"] = str(img.shape[0]) + "," +str(img.shape[1])
-        face.draw_annotation(img, dict_data)
+        detect.draw_annotation(img, dict_data)
 
         cv2.imshow('img', img)
         cv2.waitKey(50)
@@ -252,7 +252,7 @@ def conv10():
 
         '''
         ### md5
-        bnwe_md5 = face.getMD5(path_img)
+        bnwe_md5 = detect.getMD5(path_img)
         ext = path_img.rsplit(".",1)[1]
         dir_dist = path_dir_root+"/"+str(bnwe_md5[0])
         path_img_new = dir_dist+"/"+bnwe_md5+"."+ext
@@ -275,7 +275,7 @@ def conv10():
             rect_dnn = ary_rect_dnn[0]
             dict_data["rect_face_dnn"] = str(rect_dnn[0])+","+str(rect_dnn[1])+","+str(rect_dnn[2])+","+str(rect_dnn[3])
         dict_data["shape_img"] = str(img.shape[0]) + "," +str(img.shape[1])
-        face.save_csv_data(dir_dist+"/"+bnwe_md5+".csv",dict_data)
+        detect.save_csv_data(dir_dist+"/"+bnwe_md5+".csv",dict_data)
         '''
 
 
@@ -293,7 +293,7 @@ def conv11():
     #path_dir_root = "/Volumes/PortableHDD/rect_manual"
     path_dir_root = "/Volumes/PortableHDD/umet55"
     for path_csv in glob.glob(path_dir_root + "/**/*.csv", recursive=True):
-        dict_data = face.get_csv_data(path_csv)
+        dict_data = detect.get_csv_data(path_csv)
         bnwe_md5 = os.path.basename(path_csv).split(".", 1)[0]
         path_dir = path_csv.rsplit("/", 1)[0]
         ext = ".png"
@@ -303,7 +303,7 @@ def conv11():
         img = cv2.imread(path_img)
         print(path_csv,img.shape)
         dict_data["shape_img"] = str(img.shape[0]) + "," +str(img.shape[1])
-        face.save_csv_data(path_csv,dict_data)
+        detect.save_csv_data(path_csv,dict_data)
 
 def conv12(path_dir_root):
     is_cuda = torch.cuda.is_available()
@@ -312,7 +312,7 @@ def conv12(path_dir_root):
     else:
         print("using CPU")
 
-    net_d,net_c,net_l = face.load_detection_network(is_cuda,'.')
+    net_d,net_c,net_l = detect.load_detection_network(is_cuda,'.')
     ######
     print("select good and bad:", path_dir_root)
     list_path_img = []
@@ -327,12 +327,12 @@ def conv12(path_dir_root):
             continue
         ####
         print(npImg.shape[0],npImg.shape[1])
-        list_rect_dnn0 = face.detect_face_dnn_multires(net_d, net_c, net_l, npImg, threshold_prob=0.6)
+        list_rect_dnn0 = detect.detect_face_dnn_multires(net_d, net_c, net_l, npImg, threshold_prob=0.6)
         for rect in list_rect_dnn0:
-            face.highlight_rect(npImg, rect, (255, 255, 0), width=1)
-        list_rect_dnn = face.marge_rects(list_rect_dnn0)
+            detect.highlight_rect(npImg, rect, (255, 255, 0), width=1)
+        list_rect_dnn = detect.marge_rects(list_rect_dnn0)
         for rect in list_rect_dnn:
-            face.highlight_rect(npImg, rect, (0, 255, 255), width=2)
+            detect.highlight_rect(npImg, rect, (0, 255, 255), width=2)
         cv2.imshow('img',npImg)
         key = cv2.waitKey(100)
         ikey = int(key)
@@ -351,7 +351,7 @@ def conv12(path_dir_root):
             continue
         '''
         ### md5
-        bnwe_md5 = face.getMD5(path_img)
+        bnwe_md5 = detect.getMD5(path_img)
         ext = path_img.rsplit(".",1)[1]
         dir_dist = path_dir_root+"/"+str(bnwe_md5[0])
         path_img_new = dir_dist+"/"+bnwe_md5+"."+ext
@@ -371,9 +371,9 @@ def conv12(path_dir_root):
         dict_data["url_name"] = os.path.basename(path_img)
         dict_data["shape_img"] = str(npImg.shape[0]) + "," +str(npImg.shape[1])
         if len(list_rect_dnn) > 0:
-            str_csv = face.get_str_csv_list_rect(list_rect_dnn)
+            str_csv = detect.get_str_csv_list_rect(list_rect_dnn)
             dict_data["rect_face_dnn"] = str_csv
-        face.save_csv_data(dir_dist+"/"+bnwe_md5+".csv",dict_data)
+        detect.save_csv_data(dir_dist+"/"+bnwe_md5+".csv",dict_data)
 
 
 if __name__ == "__main__":

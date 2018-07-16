@@ -3,7 +3,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 
 import glob,random,pickle,datetime
-import face, face_gl
+import detect, detect_gl
 
 # utility glut
 def glut_print( x,  y,  font,  text, color):
@@ -26,20 +26,20 @@ img_size_info = (250, 250, 1, 1, -1)
 dict_info = {}
 rect_drag = None
 
-edit_mode = "NOSE_TIP"
+edit_mode = "RECT_FACE"
 view_mode = "ORIGINAL"
 
 
 def set_id_path():
     global img_size_info, dict_info, view_mode
     ###
-    img = face.get_imgage_train(path_csv_current)
-    dict_info = face.get_csv_data(path_csv_current)
+    img = detect.get_imgage_train(path_csv_current)
+    dict_info = detect.get_csv_data(path_csv_current)
     ####
     id_tex_org = img_size_info[4]
     if id_tex_org is not None and glIsTexture(id_tex_org):
         glDeleteTextures(id_tex_org)
-    img_size_info = face_gl.loadTexture(img)
+    img_size_info = detect_gl.loadTexture(img)
     if view_mode == "ORIGINAL":
         glutReshapeWindow(img_size_info[0], img_size_info[1])
     ####
@@ -48,7 +48,7 @@ def set_id_path():
     else:
         print(path_csv_current)
     ####
-    list_rect = face.get_list_rect_from_dict_info(dict_info)
+    list_rect = detect.get_list_rect_from_dict_info(dict_info)
     if view_mode.startswith("CENTER"):
         ir = int(view_mode.split("_")[1])
         if ir >= len(list_rect):
@@ -59,7 +59,7 @@ def save(dt0: datetime):
     global dict_path_csv_datetime, dict_info
     dict_info["last_looked"] = str(dt0)
     dict_info["shape_img"] = str(img_size_info[1]) + "," + str(img_size_info[0])
-    face.save_csv_data(path_csv_current, dict_info)
+    detect.save_csv_data(path_csv_current, dict_info)
     dict_path_csv_datetime[path_csv_current] = dt0
 
 
@@ -85,6 +85,17 @@ def get_newest_path(dict_path_csv_datetime):
 
 def load_file(path_dir):
     global dict_path_csv_datetime
+
+    list_path_img = []
+    list_path_img = glob.glob(path_dir + '/*.jpg', recursive=True) + list_path_img
+    list_path_img = glob.glob(path_dir + '/*.png', recursive=True) + list_path_img
+    print(list_path_img)
+    for path_img in list_path_img:
+        path_without_ext = path_img.rsplit(".")[0]
+        if os.path.isfile(path_without_ext+".csv"):
+            continue
+        file = open(path_without_ext+".csv","w")
+
     ###
     dict_path_csv_datetime = {}
     if os.path.isfile(path_dir+"/dict_path_csv__datetime.p"):
@@ -96,7 +107,7 @@ def load_file(path_dir):
     for path_csv in list_path_csv:
         if path_csv in dict_path_csv_datetime:
             continue
-        dict_data = face.get_csv_data(path_csv)
+        dict_data = detect.get_csv_data(path_csv)
         if "last_looked" in dict_data:
             dt0 = datetime.datetime.strptime(dict_data["last_looked"],'%Y-%m-%d %H:%M:%S.%f')
         else:
@@ -116,10 +127,10 @@ def load_file(path_dir):
 def display():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    face_gl.set_view_trans(img_size_info, dict_info, view_mode)
-    face_gl.draw_img_annotation(img_size_info, dict_info)
+    detect_gl.set_view_trans(img_size_info, dict_info, view_mode)
+    detect_gl.draw_img_annotation(img_size_info, dict_info)
     if rect_drag is not None:
-        face_gl.drawRect(rect_drag, color=(1, 0, 0))
+        detect_gl.drawRect(rect_drag, color=(1, 0, 0))
 
     #    glDisable(GL_DEPTH_TEST)
     glMatrixMode(GL_MODELVIEW)
@@ -134,7 +145,7 @@ def display():
     glVertex3d(-1.0,-0.8,-0.2)
     glEnd()
     glut_print(-0.9,-1.0, GLUT_BITMAP_9_BY_15, edit_mode, (1,0,0) )
-    if len(face.get_list_rect_from_dict_info(dict_info)) == 0:
+    if len(detect.get_list_rect_from_dict_info(dict_info)) == 0:
         glut_print(-0.9,-0.9, GLUT_BITMAP_9_BY_15, "no face", (0,0,1) )
 #    glEnable(GL_DEPTH_TEST)
 
@@ -184,7 +195,7 @@ def keyboard(bkey, x, y):
     if key == 'X': # move to trash box
         print(path_csv_current)
         dir_dist = os.path.abspath(os.path.dirname(path_csv_current)+"/../xtrash")
-        csv_data = face.get_csv_data(path_csv_current)
+        csv_data = detect.get_csv_data(path_csv_current)
         base_md5 = path_csv_current.rsplit(".",1)[0]
         ext = ".png"
         if not os.path.isfile(base_md5+ext):
@@ -220,7 +231,7 @@ def keyboard(bkey, x, y):
     if key == '0':
         edit_mode = "RECT_FACE"
     if key == ' ':
-        list_rect = face.get_list_rect_from_dict_info(dict_info)
+        list_rect = detect.get_list_rect_from_dict_info(dict_info)
         print(len(list_rect))
         if view_mode == "ORIGINAL":
             if len(list_rect) > 0 :
@@ -243,8 +254,8 @@ def keyboard(bkey, x, y):
 
 def mouse(button, state, x, y):
     global rect_drag
-    list_rect = face.get_list_rect_from_dict_info(dict_info)
-    xy1 = face_gl.get_img_coord((x, y), img_size_info, dict_info, view_mode, list_rect)
+    list_rect = detect.get_list_rect_from_dict_info(dict_info)
+    xy1 = detect_gl.get_img_coord((x, y), img_size_info, dict_info, view_mode, list_rect)
 #    print("mouse",x,y,state,xy1)
     if edit_mode == "NOSE_TIP":
         if state == GLUT_DOWN:
@@ -275,10 +286,10 @@ def mouse(button, state, x, y):
         if state == GLUT_UP:
             list_rect_manual = []
             if "rect_face_manual" in dict_info:
-                list_rect_manual = face.get_list_rect_from_string(dict_info["rect_face_manual"])
+                list_rect_manual = detect.get_list_rect_from_string(dict_info["rect_face_manual"])
             ir_overlap = None
             for ir, rect in enumerate(list_rect_manual):
-                iou = face.iou_rect(rect,rect_drag)
+                iou = detect.iou_rect(rect,rect_drag)
                 if iou > 0.25:
                     ir_overlap = ir
                     break
@@ -287,15 +298,15 @@ def mouse(button, state, x, y):
             else:
                 list_rect_manual.append(rect_drag)
             print(list_rect_manual)
-            dict_info["rect_face_manual"] = face.get_str_csv_list_rect(list_rect_manual)
+            dict_info["rect_face_manual"] = detect.get_str_csv_list_rect(list_rect_manual)
             rect_drag = None
     glutPostRedisplay()
 
 
 def motion(x, y):
     global rect_drag
-    list_rect = face.get_list_rect_from_dict_info(dict_info)
-    xy1 = face_gl.get_img_coord((x, y), img_size_info, dict_info, view_mode, list_rect)
+    list_rect = detect.get_list_rect_from_dict_info(dict_info)
+    xy1 = detect_gl.get_img_coord((x, y), img_size_info, dict_info, view_mode, list_rect)
 #    print("move",edit_mode,rect_drag,x,y,xy1)
     if edit_mode == "RECT_FACE" and rect_drag is not None:
         size_x = abs(xy1[0] - rect_drag[0])
