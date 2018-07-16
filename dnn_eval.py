@@ -39,14 +39,14 @@ def evaluate_training_data(net_d, net_c, net_l):
             cv2.waitKey(300)
 
 
-def select_good_and_bad(net_d, net_c, net_l, path_dir_root):
-    print("select good and bad:", path_dir_root)
+def evaluate_images(net_d, net_c, net_l, path_dir):
+    print("evaluate images in: ", path_dir)
     list_path_img = []
-    list_path_img = glob.glob(path_dir_root + '/*.jpg', recursive=True) + list_path_img
-    list_path_img = glob.glob(path_dir_root + '/*.png', recursive=True) + list_path_img
-    print("there is ",len(list_path_img),"images")
+    list_path_img = glob.glob(path_dir + '/*.jpg', recursive=True) + list_path_img
+    list_path_img = glob.glob(path_dir + '/*.png', recursive=True) + list_path_img
+    print("there is ",len(list_path_img),"images")    
     for itr in range(len(list_path_img)):
-        path_img = list_path_img[random.randint(0,len(list_path_img)-1)]
+        path_img = list_path_img[itr]
         if not os.path.isfile(path_img):
             continue
         npImg = cv2.imread(path_img)
@@ -74,7 +74,7 @@ def main():
 
     if len(os.sys.argv) == 2:
         path = os.sys.argv[1]
-        select_good_and_bad(net_d, net_c, net_l, path)
+        evaluate_images(net_d, net_c, net_l, path)
     else:
         evaluate_training_data(net_d, net_c, net_l,)
 
